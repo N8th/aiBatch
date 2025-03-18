@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Image Generator</title>
+    <style>
+      body {
+        background: #121212;
+        color: #ddd;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background: #1a1a1a;
+        border-radius: 10px;
+      }
+      input,
+      select,
+      button,
+      .slider {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        background: #222;
+        color: #fff;
+        border: 1px solid #333;
+      }
+      button {
+        background: #007bff;
+        cursor: pointer;
+      }
+      .images-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .image-box {
+        display: none;
+        width: 45%;
+        border-radius: 10px;
+      }
+      label {
+        display: block;
+        margin-top: 10px;
+        text-align: left;
+      }
+      .slider-value {
+        margin-left: 10px;
+        font-size: 14px;
+        color: #bbb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Generate AI Images</h2>
+
+      <label for="promptInput">Prompt:</label>
+      <input
+        type="text"
+        id="promptInput"
+        value="UHD portrait photo of (subject)"
+      />
+
+      <label for="seedInput">Seed (Optional):</label>
+      <input
+        type="number"
+        id="seedInput"
+        placeholder="Leave empty for random"
+      />
+
+      <label for="qualitySlider">Quality:</label>
+      <input
+        type="range"
+        id="qualitySlider"
+        min="0"
+        max="100"
+        value="80"
+        oninput="updateValue('qualityValue', this.value)"
+      />
+      <span class="slider-value" id="qualityValue">80</span>
+
+      <label for="numOutputsSlider">Number of Outputs:</label>
+      <input
+        type="range"
+        id="numOutputsSlider"
+        min="1"
+        max="4"
+        value="1"
+        oninput="updateValue('numOutputsValue', this.value)"
+      />
+      <span class="slider-value" id="numOutputsValue">1</span>
+
+      <label for="guidanceSlider">Guidance Scale:</label>
+      <input
+        type="range"
+        id="guidanceSlider"
+        min="0"
+        max="10"
+        step="0.1"
+        value="3"
+        oninput="updateValue('guidanceValue', this.value)"
+      />
+      <span class="slider-value" id="guidanceValue">3</span>
+
+      <label for="stepsSlider">Inference Steps:</label>
+      <input
+        type="range"
+        id="stepsSlider"
+        min="1"
+        max="50"
+        value="28"
+        oninput="updateValue('stepsValue', this.value)"
+      />
+      <span class="slider-value" id="stepsValue">28</span>
+
+      <label for="aspectRatio">Aspect Ratio:</label>
+      <select id="aspectRatio">
+        <option value="1:1">1:1 (Square)</option>
+        <option value="16:9">16:9</option>
+        <option value="21:9">21:9</option>
+        <option value="3:2">3:2</option>
+        <option value="4:5">4:5</option>
+        <option value="5:4">5:4</option>
+      </select>
+
+      <label for="outputFormat">Output Format:</label>
+      <select id="outputFormat">
+        <option value="webp">WEBP</option>
+        <option value="jpg">JPG</option>
+        <option value="png">PNG</option>
+      </select>
+
+      <button onclick="generateImages()">Generate</button>
+
+      <p id="status">Status: Waiting...</p>
+
+      <div class="images-container">
+        <img id="outputImage1" class="image-box" />
+        <img id="outputImage2" class="image-box" />
+        <img id="outputImage3" class="image-box" />
+        <img id="outputImage4" class="image-box" />
+      </div>
+    </div>
+
+    <script>
+      function updateValue(id, value) {
+        document.getElementById(id).textContent = value;
+      }
+
+      async function generateImages() {
+        document.getElementById("status").textContent =
+          "🚀 Generating images...";
+
+        const prompt = document.getElementById("promptInput").value;
+        const seed = document.getElementById("seedInput").value;
+        const quality = document.getElementById("qualitySlider").value;
+        const num_outputs = document.getElementById("numOutputsSlider").value;
+        const guidance_scale = document.getElementById("guidanceSlider").value;
+        const num_inference_steps =
+          document.getElementById("stepsSlider").value;
+        const aspect_ratio = document.getElementById("aspectRatio").value;
+        const output_format = document.getElementById("outputFormat").value;
+
+        try {
+          const response = await fetch(
+            "http://localhost:5000/generate-images",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                input: {
+                  prompt,
+                  seed: seed || null,
+                  num_outputs: parseInt(num_outputs),
+                  output_quality: parseInt(quality),
+                  guidance_scale: parseFloat(guidance_scale),
+                  num_inference_steps: parseInt(num_inference_steps),
+                  aspect_ratio,
+                  output_format,
+                },
+              }),
+            }
+          );
+
+          const result = await response.json();
+          if (response.ok) {
+            checkPredictionStatus(
+              result.nstr.id,
+              result.n8th.id,
+              result.jstr.id,
+              result.dar.id
+            );
+          } else {
+            document.getElementById("status").textContent =
+              "❌ Error: " + result.error;
+          }
+        } catch (error) {
+          document.getElementById("status").textContent = "❌ Request failed.";
+          console.error("Error:", error);
+        }
+      }
+
+      async function checkPredictionStatus(id1, id2, id3, id4) {
+        document.getElementById("status").textContent = "🔄 Checking status...";
+
+        try {
+          const response = await fetch(
+            `http://localhost:5000/generate-image-status/${id1}/${id2}/${id3}/${id4}`
+          );
+          const result = await response.json();
+
+          if (result.nstr.status === "succeeded") {
+            displayImages(result.nstr.output, 1);
+          }
+          if (result.n8th.status === "succeeded") {
+            displayImages(result.n8th.output, 2);
+          }
+          if (result.jstr.status === "succeeded") {
+            displayImages(result.jstr.output, 3);
+          }
+          if (result.dar.status === "succeeded") {
+            displayImages(result.dar.output, 4);
+          }
+
+          document.getElementById("status").textContent = "✅ Images ready!";
+        } catch (error) {
+          document.getElementById("status").textContent =
+            "❌ Error fetching results.";
+          console.error("Error:", error);
+        }
+      }
+
+      function displayImages(images, modelIndex) {
+        images.forEach((url, index) => {
+          const img = document.getElementById(`outputImage${modelIndex}`);
+          img.src = url;
+          img.style.display = "block";
+        });
+      }
+    </script>
+  </body>
+</html>
