@@ -16,13 +16,13 @@ const MODEL_CONFIG = {
     version: "97ca4e84c0432035c4ede3e2c48ba733c3cd549fc564bdbf9bfe42a8310914ab",
     prefix: "young man nstr"
   },
+  jak: {
+    version: "5d64b90c7b38a6517b46782635886fc90e697e22b5e081603b719a80c3d7daca",
+    prefix: "woman jak"
+  },
   n8th: {
     version: "2da4c3abb7168c58da3c19b9c57f13c42189f34cd2f29667169bd8928a9bbfdf",
     prefix: "boy n8th"
-  },
-  jstr: {
-    version: "4ea67571c5404d76ae65866a14df03a5b3cb4db8d73adb182b0dd97b8bf64859",
-    prefix: "woman jstr"
   },
   gma: {
     version: "7c7ec57346d8ad842373f826d824b4e2fd6d66bacf3c3177e8f7f30c9f5237c8",
@@ -31,7 +31,19 @@ const MODEL_CONFIG = {
   dar: {
     version: "b6e71b98882c476368a18fa5fc5ac565f67da02bc918dfcf0cf30cd03ace2650",
     prefix: "young man dar"
-  }
+  },
+  rby: {
+      version: "910989f27146d04c6ed15078ba3c0c57f2360af7aa33b58fb68a3b7ce29594cd",
+      prefix: "woman rby"
+    },
+  cbm: {
+    version: "a44557ab21349a7d6c40c54b6f840454dc6d996444f32867cb4b4ee5559e15e6",
+    prefix: "woman cbm"
+  },
+  jstr: {
+    version: "4ea67571c5404d76ae65866a14df03a5b3cb4db8d73adb182b0dd97b8bf64859",
+    prefix: "woman jstr"
+  },
 };
 
 // ✅ Serve frontend
